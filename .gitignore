@@ -1,43 +1,26 @@
-# Byte-compiled / optimized / DLL files
+# --- Sensitive User Data ---
+# NEVER commit your encrypted vaults or master password hash!
+/data/
+
+# --- Virtual Environment ---
+# Ignore the entire virtual environment folder
+.venv/
+venv/
+env/
+
+# --- Python Cache ---
+# Ignore all __pycache__ directories
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
+# --- Build & Install Artifacts ---
+# Ignore the .egg-info folder from pip install
 *.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+build/
+dist/
 
-# Virtual Environments
-venv/
-.venv/
-env/
-.env/
-ENV/
-
-# Ignore all user data. Never commit vaults or keys to Git.
-data/
-
-# OS-generated files
+# --- OS-Specific Files ---
+# Ignore macOS system files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
