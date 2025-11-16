@@ -14,14 +14,23 @@ from ..core.vault import Vault
 def create_parser():
     parser = argparse.ArgumentParser(description="A command-line credential vault.")
     
-    group = parser.add_mutually_exclusive_group()
+    subparsers = parser.add_subparsers(dest="command", required=True, help="The action to perform.")
 
-    group.add_argument('--add', type=str, metavar='SERVICE', help='Add a new credential for SERVICE.')
-    group.add_argument('--get', type=str, metavar='SERVICE', help='Get the password for SERVICE.')
-    group.add_argument('--delete', type=str, metavar='SERVICE', help='Delete the credential for SERVICE.')
-    group.add_argument('--update', type=str, metavar='SERVICE', help='Update the credential for SERVICE.')
+    add_parser = subparsers.add_parser('add', help='Add a new credential.')
+    add_parser.add_argument('service', type=str, help='The name of the service to add (e.g., "Google").')
     
-    group.add_argument('--view', action='store_true', help='View all credentials in the vault.')
+    get_parser = subparsers.add_parser('get', help='Get the password for a service.')
+    get_parser.add_argument('service', type=str, help='The name of the service to get.')
+    
+
+    delete_parser = subparsers.add_parser('delete', help='Delete a credential.')
+    delete_parser.add_argument('service', type=str, help='The name of the service to delete.')
+    
+    update_parser = subparsers.add_parser('update', help='Update a credential.')
+    update_parser.add_argument('service', type=str, help='The name of the service to update.')
+
+    view_parser = subparsers.add_parser('view', help='View all credentials in the vault.')
+    
     parser.add_argument('-f', '--file', type=str, metavar='FILEPATH', help='Specify a custom vault file path.')
 
     return parser

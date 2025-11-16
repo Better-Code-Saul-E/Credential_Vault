@@ -4,6 +4,7 @@ import getpass
 from rich import print as rich_print
 from rich.table import Table
 from rich.panel import Panel
+import pyperclip
 
 
 def handle_command(vault, args, parser):
@@ -12,24 +13,20 @@ def handle_command(vault, args, parser):
     function based on the parsed arguments.
     """
     
-    if args.view:
+    if args.command == 'add':
+        handle_add(vault, args.service)
+        
+    elif args.command == 'get':
+        handle_get(vault, args.service)
+        
+    elif args.command == 'delete':
+        handle_delete(vault, args.service)
+
+    elif args.command == 'update':
+        handle_update(vault, args.service)
+        
+    elif args.command == 'view':
         handle_list_all(vault)
-
-    elif args.add:
-        handle_add(vault, args.add) 
-        return
-        
-    elif args.get:
-        handle_get(vault, args.get)
-        return
-        
-    elif args.delete:
-        handle_delete(vault, args.delete) 
-        return
-
-    elif args.update:
-        handle_update(vault, args.update) 
-        return
         
     else:
         parser.print_help()
