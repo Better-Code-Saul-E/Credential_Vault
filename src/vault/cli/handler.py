@@ -15,19 +15,16 @@ def handle_command(vault, args, parser):
     
     if args.command == 'add':
         handle_add(vault, args.service)
-        
     elif args.command == 'get':
         handle_get(vault, args.service)
-        
     elif args.command == 'delete':
         handle_delete(vault, args.service)
-
     elif args.command == 'update':
         handle_update(vault, args.service)
-        
     elif args.command == 'view':
         handle_list_all(vault)
-        
+    elif args.command == 'search':
+        handle_search(vault, args.query)
     else:
         parser.print_help()
 
@@ -106,3 +103,20 @@ def handle_update(vault, service):
         rich_print(f"[green] Credential for '[bold]{existing_credential['service_name']}[/bold]' has been updated.[/green]")
     else:
         rich_print(f"[red]Error updating credential.[/red]")
+
+def handle_search(vault, query):
+    matches = vault.search_credentials(query)
+
+    if not matches:
+        rich_print(f"[yellow]No credentials found containing '{query}'.[/yellow]")
+        return
+    
+    table = Table(title=f"[bold cyan]Search Results: '{query}'[/bold cyan]", border_style="blue")
+    table.add_column("Service", style="bold green", no_wrap=True)
+    table.add_column("Username", style="magenta")
+
+    for service_key in sorted(matches.keys()):
+        item = matches[service_key]
+        table.add_row(item['service_name'], item['username'])
+
+    rich_print(table)

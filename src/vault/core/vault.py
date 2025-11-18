@@ -113,4 +113,14 @@ class Vault:
             
         self.save()
         return True
+    
+    def search_credentials(self, query):
+        query = query.lower()
+        matches = {}
+
+        for key, data in self.credentials.items():
+            if query in key:
+                matches[key] = data
+        
+        return matches
         

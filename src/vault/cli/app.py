@@ -28,6 +28,9 @@ def create_parser():
     
     update_parser = subparsers.add_parser('update', help='Update a credential.')
     update_parser.add_argument('service', type=str, help='The name of the service to update.')
+    
+    search_parser = subparsers.add_parser('search', help='Search for credentials.')
+    search_parser.add_argument('query', type=str, help=('The search term (e.g., "google"),'))
 
     view_parser = subparsers.add_parser('view', help='View all credentials in the vault.')
     
