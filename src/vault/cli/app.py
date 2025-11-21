@@ -8,7 +8,7 @@ from rich.panel import Panel
 from .authentication import handle_authentication
 from .handler import handle_command
 from ..core.vault import Vault
-
+from ..core.services.configuration_manager import ConfigurationManager
 
 
 def create_parser():
@@ -33,7 +33,10 @@ def create_parser():
     search_parser.add_argument('query', type=str, help=('The search term (e.g., "google"),'))
 
     view_parser = subparsers.add_parser('view', help='View all credentials in the vault.')
-    
+
+    switch_parser = subparsers.add_parser('switch', help='Switch the active vault.')
+    switch_parser.add_argument('vault_name', type=str, help='Name of the vault to switch to (e.g., "work").')
+
     parser.add_argument('-f', '--file', type=str, metavar='FILEPATH', help='Specify a custom vault file path.')
 
     return parser
@@ -42,8 +45,6 @@ def run():
     
     data_dir = 'data'
     default_hash_file = os.path.join(data_dir,'master.hash')
-    default_vault_file = os.path.join(data_dir, 'dredentials.json')
-    
     os.makedirs(data_dir, exist_ok=True)
     
     user_password = handle_authentication(default_hash_file)
@@ -52,8 +53,13 @@ def run():
     
     parser = create_parser()
     args = parser.parse_args()
+    config_mgr = ConfigurationManager()
 
-    filepath = args.file if args.file else default_vault_file
+    if args.file:
+        filepath = args.file
+    else:
+        filepath = config_mgr.get_active_vault()
+
     try:
         my_vault = Vault(password=user_password, filepath=filepath)
     except ValueError as e:

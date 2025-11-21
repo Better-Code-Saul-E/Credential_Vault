@@ -5,6 +5,7 @@ from rich import print as rich_print
 from rich.table import Table
 from rich.panel import Panel
 import pyperclip
+from ..core.services.configuration_manager import ConfigurationManager
 
 
 def handle_command(vault, args, parser):
@@ -25,6 +26,8 @@ def handle_command(vault, args, parser):
         handle_list_all(vault)
     elif args.command == 'search':
         handle_search(vault, args.query)
+    elif args.command == 'switch':
+        handle_switch(args.vault_name)
     else:
         parser.print_help()
 
@@ -120,3 +123,8 @@ def handle_search(vault, query):
         table.add_row(item['service_name'], item['username'])
 
     rich_print(table)
+
+def handle_switch(vault_name):
+    config_mgr = ConfigurationManager()
+    new_path = config_mgr.set_active_vault(vault_name)
+    rich_print(f"[green] Switched active vault to: [bold]{new_path}[/bold][/green]")
