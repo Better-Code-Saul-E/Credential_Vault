@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vault"
+version = "1.0.0"
+description = "A secure command-line password vault."
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+"rich",
+"cryptography"
+]
+
+authors = [
+{name="Saul Enriquez", email="[saul.enriquez2005@gmail.com](mailto:saul.enriquez2005@gmail.com)"}
+]
+
+license = {text="MIT"}
+keywords = ["vault", "password", "security"]
+classifiers = [
+"Programming Language :: Python :: 3",
+"License :: OSI Approved :: MIT License",
+"Operating System :: OS Independent"
+]
+
+[project.scripts]
+vault = "vault.app:run"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,26 +1,52 @@
-# --- Sensitive User Data ---
-# NEVER commit your encrypted vaults or master password hash!
-/data/
+# Python bytecode
+**pycache**/
+*.py[cod]
 
-# --- Virtual Environment ---
-# Ignore the entire virtual environment folder
-.venv/
+# Virtual environments
 venv/
 env/
+ENV/
+.venv/
 
-# --- Python Cache ---
-# Ignore all __pycache__ directories
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# --- Build & Install Artifacts ---
-# Ignore the .egg-info folder from pip install
-*.egg-info/
+# Distribution / packaging
 build/
 dist/
+*.egg-info/
+*.egg
 
-# --- OS-Specific Files ---
-# Ignore macOS system files
+# OS-specific files
 .DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.bak
+
+# Coverage reports
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Mypy
+.mypy_cache/
+
+# Sensitive vault files (never commit these)
+data/master.hash
+data/*.json
+
+# PyInstaller / build artifacts
+*.manifest
+*.spec
+
+# IDE/editor configs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Misc
+*.swp
+*.tmp
+*.temp
+*.old
+*.orig
