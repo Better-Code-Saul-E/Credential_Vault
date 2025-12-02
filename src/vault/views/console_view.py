@@ -15,9 +15,7 @@ class ConsoleView(IUserIO):
     def get_password(self, prompt: str) -> str:
         return getpass.getpass(prompt)
 
-
     def show_header(self, vault_name="Default"):
-        """Displays the application banner with the vault name."""
         title = f"[bold cyan] Credential Vault : {vault_name} [/bold cyan]"
         rich_print(Panel.fit("=+~+="*2 + title + "=+~+="*2, border_style="blue"))
 

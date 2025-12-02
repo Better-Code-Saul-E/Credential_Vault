@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class IDataMigrator(ABC):
     """
-    Defines a contract to migrate legacy vault data to the current format.
+    Defines methods migrate legacy vault data to the current format.
     """
 
     @abstractmethod

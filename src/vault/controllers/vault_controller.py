@@ -5,6 +5,7 @@ from ..services.configuration_service import ConfigurationService
 from ..services.authentication_service import AuthenticationService
 from ..interfaces.user_io_interface import IUserIO, IClipboard
 from ..services.credential_input_service import CredentialInputService
+from ..services.vault_transfer_service import VaultTransferService
 
 
 class VaultController:
@@ -20,24 +21,24 @@ class VaultController:
                  clipboard: IClipboard,
                  config_service: ConfigurationService, 
                  auth_service: AuthenticationService,
+                 transfer_service: VaultTransferService,
                  credential_input: CredentialInputService):
         self.service = service
         self.io = io
         self.clipboard = clipboard
         self.config = config_service
         self.auth = auth_service
+        self.transfer = transfer_service
         self.credential_input = credential_input
 
     def _get_vault_name(self):
-        """Gets the clean name of the current vault (e.g. 'Work')."""
         full_path = self.config.get_active_vault()
         filename = os.path.basename(full_path)
-        # Removes .json and capitalizes the first letter
+
         return os.path.splitext(filename)[0].capitalize()
        
     def add_entry(self, service_name):
         self.io.show_header(self._get_vault_name())
-        # FIX: Removed extra ()
         username = self.io.get_input(f"Enter username for {service_name}: ")
         password = self.credential_input.get_valid_password()
 
@@ -77,7 +78,6 @@ class VaultController:
 
         self.io.show_info(f"Updating {service_name}. Press Enter to keep current values.")
         
-        # FIX: Removed extra () and use injected IO
         new_user = self.io.get_input("New username: ")
         new_pass = self.io.get_password("New password: ")
 
@@ -102,7 +102,7 @@ class VaultController:
 
     def change_password(self):
         self.io.show_header(self._get_vault_name())
-        # FIX: Use injected IO
+
         new_pass = self.io.get_password("Enter NEW master password: ")
         confirm = self.io.get_password("Confirm NEW master password: ")
 
@@ -114,5 +114,40 @@ class VaultController:
         self.auth.create_master_hash(new_pass)
         
         self.io.show_success("Master password changed successfully.")
+
+    def export_vault(self, filepath):
+        self.io.show_header(self._get_vault_name())
+        self.io.show_warning(f"SECURITY RISK: You are about to save unencrypted passwords to '{filepath}'.")
+
+        confirm = self.io.get_input("Are you sure you want to do this? (y/n): ")
+        if confirm.lower() != 'y':
+            self.io.show_error("Export cancelled.")
+            return
+        
+        try:
+            self.transfer.export_to_file(filepath)
+            self.io.show_success("Vault exported successfully.")
+
+        except Exception as e:
+            self.io.show_error(f"Export failed: {e}")
+
+    def import_vault(self, filepath):
+        self.io.show_header(self._get_vault_name())
+        
+        if not os.path.exists(filepath):
+            self.io.show_error(f"File '{filepath}' not found.")
+            return
+
+        try:
+            success, count = self.transfer.import_from_file(filepath)
+            
+            if success:
+                self.io.show_success(f"Successfully imported {count} credentials.")
+            else:
+                self.io.show_warning("No valid credentials found to import.")
+    
+        except Exception as e:
+            self.io.show_error(f"Import failed: {e}")
+
     
     

@@ -1,11 +1,10 @@
 from abc import ABC, abstractmethod
 
+"""
+Defines encryption/decryption operations and key derivation for secure vault storage.
+"""
+
 class IDataEncryptor(ABC):
-    """
-    Defines encryption/decryption operations and key derivation for secure vault storage.
-    """
-
-
     @abstractmethod
     def encrypt(self, data: str, password: str) -> bytes:
         pass
@@ -19,7 +18,6 @@ class IDataEncryptor(ABC):
         pass
 
 class IPasswordHasher(ABC):
-    """Contract for checking user login (Auth layer)."""
     @abstractmethod
     def hash_password(self, password: str) -> str:
         pass

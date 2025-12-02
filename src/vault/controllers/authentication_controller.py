@@ -17,7 +17,6 @@ class AuthenticationController:
         self.config = config_service
     
     def _get_vault_name(self):
-        """Helper to get the current vault name for the header."""
         full_path = self.config.get_active_vault()
         filename = os.path.basename(full_path)
         return os.path.splitext(filename)[0].capitalize()
@@ -27,7 +26,6 @@ class AuthenticationController:
         self.io.show_info("Your typing will be hidden for security.")
 
         try:
-            # Use self.io.getpass instead of built-in getpass
             password = self.io.get_password("Create a new master password: ")
             confirm = self.io.get_password("Confirm master password: ")
         except (KeyboardInterrupt, EOFError):
@@ -51,8 +49,8 @@ class AuthenticationController:
 
     def _handle_login(self):
         try:
-            # Use self.io.getpass
             password = self.io.get_password("Enter master password: ")
+
         except (KeyboardInterrupt, EOFError):
             self.io.show_error("Login cancelled.")
             return None
@@ -65,10 +63,6 @@ class AuthenticationController:
             return None
     
     def authenticate_user(self) -> str | None:
-        """
-        Orchestrates the login flow. 
-        Returns the master password if successful, or None.
-        """
         self.io.show_header(self._get_vault_name())
 
         if  self.auth_service.repo.load_hash() is None:

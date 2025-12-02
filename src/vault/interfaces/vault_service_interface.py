@@ -39,3 +39,7 @@ class IVaultService(ABC):
     @abstractmethod
     def change_master_password(self, new_password: str) -> bool:
         pass
+
+    @abstractmethod
+    def import_credentials(self, new_data: dict) -> tuple[bool, int]:
+        pass

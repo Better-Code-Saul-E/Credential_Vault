@@ -70,3 +70,17 @@ class VaultService(IVaultService):
         self.password = new_password
         return True
     
+    def import_credentials(self, new_data: dict) -> tuple[bool, int]:
+        count = 0
+
+        for key, details in new_data.items():
+            if isinstance(details, dict) and 'username' in details and 'password' in details:
+                self.credentials[key] = details
+                count+=1
+
+        if count > 0:
+            self._save_credentials()
+            return True, count
+        return False, 0
+
+    

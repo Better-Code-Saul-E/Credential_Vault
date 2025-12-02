@@ -1,7 +1,6 @@
 import os
 import sys
 import argparse
-from rich import print as rich_print
 
 # --- 1. Tools & Utilities ---
 from .utils.encryptors import FernetDataEncryptor, Pbkdf2PasswordHasher
@@ -16,14 +15,12 @@ from .services.authentication_service import AuthenticationService
 from .services.vault_service import VaultService
 from .services.configuration_service import ConfigurationService
 from .services.credential_input_service import CredentialInputService
+from .services.vault_transfer_service import VaultTransferService
+
 
 # --- 3. Controllers ---
 from .controllers.vault_controller import VaultController
 from .controllers.authentication_controller import AuthenticationController
-
-# -------------------------------
-# Setup Functions
-# -------------------------------
 
 def ensure_data_directory(data_dir: str):
     os.makedirs(data_dir, exist_ok=True)
@@ -52,21 +49,21 @@ def bootstrap_controllers(auth_service: AuthenticationService, config_service: C
                           user_password: str, vault_path: str) -> VaultController:
     """Build VaultController with all dependencies."""
     
-    # Repository and Service
     repository = JsonRepository(vault_path, encryptor)
     vault_service = VaultService(repository, user_password)
     credential_input_service = CredentialInputService(io=view, password_validator=validator)
+    transfer_service = VaultTransferService(vault_service)
 
-
-    # Controller
     vault_controller = VaultController(
         service=vault_service,
         io=view,
         clipboard=clipboard,
         config_service=config_service,
         auth_service=auth_service,
+        transfer_service=transfer_service,
         credential_input=credential_input_service
     )
+
     return vault_controller
 
 def create_parser() -> argparse.ArgumentParser:
@@ -74,25 +71,24 @@ def create_parser() -> argparse.ArgumentParser:
     
     subparsers = parser.add_subparsers(dest="command", required=False, help="Action to perform.")
 
-    # Subcommands
     subcommands = [
         ('add', 'Add a new credential.', 'service'),
         ('get', 'Get password for a service.', 'service'),
         ('delete', 'Delete a credential.', 'service'),
         ('update', 'Update a credential.', 'service'),
         ('search', 'Search for credentials.', 'query'),
-        ('switch', 'Switch the active vault.', 'vault_name')
+        ('switch', 'Switch the active vault.', 'vault_name'),
+        ('export', 'Export decrypted vault to JSON.', 'filepath'),
+        ('import', 'Import credentials from JSON.', 'filepath'),
     ]
 
     for cmd, help_text, arg_name in subcommands:
         sp = subparsers.add_parser(cmd, help=help_text)
         sp.add_argument(arg_name, type=str, help=f"The {arg_name}.")
 
-    # Commands without extra args
     subparsers.add_parser('view', help='View all credentials.')
     subparsers.add_parser('passwd', help='Change the master password.')
-
-    # Global argument
+    
     parser.add_argument('-f', '--file', type=str, metavar='FILEPATH', help='Specify a custom vault file path.')
     return parser
 
@@ -119,8 +115,20 @@ def route_command(args, vault_controller: VaultController, parser: argparse.Argu
             vault_controller.switch_active_vault(args.vault_name)
         elif args.command == 'passwd':
             vault_controller.change_password()
+        elif args.command == 'export':
+            vault_controller.export_vault(args.filepath) 
+        elif args.command == 'import':
+            vault_controller.import_vault(args.filepath)
     except Exception as e:
         vault_controller.io.show_error(f"An unexpected error occurred: {e}")
+
+
+
+
+
+
+
+
 
 # -------------------------------
 # Main Run Function
@@ -152,7 +160,7 @@ def run():
         
         view.show_header(clean_name)
         view.show_success(f"Switched active vault to: {new_path}")
-        return # Exit immediately
+        return 
 
     # 4. Authentication Phase (Only if not switching)
     auth_controller = AuthenticationController(auth_service, view, config_service)
