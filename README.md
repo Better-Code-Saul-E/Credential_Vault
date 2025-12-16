@@ -1,22 +1,51 @@
-# Credential_Vault
+# Credential Vault
 
-This is my **Credential Vault project in Python**, a command-line tool I built to practice secure storage of usernames and passwords.  It started as a simple JSON-based password manager and evolved step by step into a vault with AES encryption and a master password system.  
+A local first **Command Line Interface Password Manager** built in Python. Designed as a digintal vault for sensitive credentials. It started as a simple JSON-based password manager and evolved step by step into a vault with AES encryption and a master password system.  
 
-## What is does!
-- Securely store and manage your credentials (service, username, password)
-- Protects your data with a **master password**
-- Uses **AES encryption** (via the `cryptography` library) to lock down the vault
-- Clean, colorful CLI output with `rich`
-- Copy credentials to clipboard with `pyperclip`
+---
 
-### Adding a credential
-![Add Credential](images/AddCredential.png)
+## Table of Contents
+- [Features](#features)
+- [Security](#security)
+- [Technical Architecture](#technical-architecture)
+- [Tech Stack](#tech-stack)
 
+---
 
-### Delete a credential
-![Add Credential](images/DeleteCredential.png)
+## Features
+- **AES-256 Encryption**: All data is encrypted using Fernet's symmetric encryption.
+- **Session Management**: Supports both "One-Shot" commands and a "Interactive Shell" to reduce repeated password entry.
+- **Multi-Vault Support**: Switch between separate vaults (e.g., Default, Work, Personal) to organize credentials.
+- **Secure Authentication**: PBKDF2-HMAC-SHA256 salted hashing to verify the master password without storing it.
+- **CRUD Operations**: Create, Read, Update, and Delete credentials securely.
+- **Smart Utilities**:
+  - Clipboard Integration for easy password pasting
+  - Password Strength Analyzer evaluating complexity (length, special chars, etc.)
+  - Secure Import/Export via encrypted JSON backups
 
+---
 
-### Viewing all credentials
-![Add Credential](images/ViewCredentials.png)
+## Security
+- **Zero-Knowledge Architecture**: The app never stores or sees your master password, only the hash.
+- **Salted Hashing**: Unique, random salt for every password to prevent Rainbow Table attacks.
+- **Memory Safety**: Fully local, no data is sent to the cloud.
+- **Explicit Warnings**: Dangerous actions trigger confirmation prompts (e.g., exporting unencrypted data or using weak passwords).
+
+---
+
+## Technical Architecture
+The project follows **MVC Principles** for separation of concern:
+- **Models**: Data structures (e.g., Credential objects)
+- **Views**: Terminal UI using [Rich](https://github.com/Textualize/rich) for tables, panels, and colored text
+- **Controllers**: Coordinate between Views and Services/Repositories
+- **Services**: Handle business logic (VaultService, AuthService)
+- **Repositories**: Persist encrypted JSON data
+
+---
+
+## Tech Stack
+- **Language**: Python 3.10+
+- **Cryptography**: `cryptography` library (Fernet/PBKDF2)
+- **UI/UX**: `rich` (Terminal formatting), `shlex` (Command parsing)
+- **System**: `pyperclip` (Clipboard management), `argparse` (CLI arguments)
 
