@@ -31,14 +31,14 @@ class VaultController:
         self.transfer = transfer_service
         self.credential_input = credential_input
 
-    def _get_vault_name(self):
+    def get_vault_name(self):
         full_path = self.config.get_active_vault()
         filename = os.path.basename(full_path)
 
         return os.path.splitext(filename)[0].capitalize()
        
     def add_entry(self, service_name):
-        self.io.show_header(self._get_vault_name())
+        self.io.show_header(self.get_vault_name())
         username = self.io.get_input(f"Enter username for {service_name}: ")
         password = self.credential_input.get_valid_password()
 
@@ -50,12 +50,12 @@ class VaultController:
             self.io.show_error(f"Service {service_name} already exists.")
 
     def view_all_entrys(self):
-        self.io.show_header(self._get_vault_name())
+        self.io.show_header(self.get_vault_name())
         data = self.service.list_all_credentials()
         self.io.show_credential_list(data)
 
     def get_entry(self, service_name):
-        self.io.show_header(self._get_vault_name())
+        self.io.show_header(self.get_vault_name())
         cred_dict = self.service.get_credential(service_name)
         if cred_dict:
             self.clipboard.copy_to_clipboard(cred_dict['password'])
@@ -64,14 +64,14 @@ class VaultController:
             self.io.show_warning(f"Service {service_name} not found.")
 
     def delete_entry(self, service_name):
-        self.io.show_header(self._get_vault_name())
+        self.io.show_header(self.get_vault_name())
         if self.service.delete_credential(service_name):
             self.io.show_success(f"Credential for {service_name} deleted.")
         else:
             self.io.show_warning(f"Service {service_name} not found.")
 
     def update_entry(self, service_name):
-        self.io.show_header(self._get_vault_name())
+        self.io.show_header(self.get_vault_name())
         if not self.service.get_credential(service_name):
             self.io.show_warning(f"Service {service_name} not found.")
             return
@@ -90,18 +90,18 @@ class VaultController:
             self.io.show_error("Update failed.")
 
     def find_entry(self, query):
-        self.io.show_header(self._get_vault_name())
+        self.io.show_header(self.get_vault_name())
         matches = self.service.search_credentials(query)
         self.io.show_search_results(matches, query)
 
     def switch_active_vault(self, vault_name):
         new_path = self.config.set_active_vault(vault_name)
 
-        self.io.show_header(self._get_vault_name())
+        self.io.show_header(self.get_vault_name())
         self.io.show_success(f"Switched active vault to: {new_path}")
 
     def change_password(self):
-        self.io.show_header(self._get_vault_name())
+        self.io.show_header(self.get_vault_name())
 
         new_pass = self.io.get_password("Enter NEW master password: ")
         confirm = self.io.get_password("Confirm NEW master password: ")
@@ -116,7 +116,7 @@ class VaultController:
         self.io.show_success("Master password changed successfully.")
 
     def export_vault(self, filepath):
-        self.io.show_header(self._get_vault_name())
+        self.io.show_header(self.get_vault_name())
         self.io.show_warning(f"SECURITY RISK: You are about to save unencrypted passwords to '{filepath}'.")
 
         confirm = self.io.get_input("Are you sure you want to do this? (y/n): ")
@@ -132,7 +132,7 @@ class VaultController:
             self.io.show_error(f"Export failed: {e}")
 
     def import_vault(self, filepath):
-        self.io.show_header(self._get_vault_name())
+        self.io.show_header(self.get_vault_name())
         
         if not os.path.exists(filepath):
             self.io.show_error(f"File '{filepath}' not found.")
