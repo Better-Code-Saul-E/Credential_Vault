@@ -172,7 +172,22 @@ class VaultController:
     def show_audit_logs(self):
         self.audit.log_event("AUDIT_VIEW", "Accessed audit logs")
         self.io.show_header("Audit Logs")
-        logs = self.audit.get_parsed_logs(20)
+
+        user_input = self.io.get_input("How many logs to view? (Default: 20) ")
+
+        if not user_input.strip():
+            limit = 20
+        else:
+            try:
+                limit = int(user_input)
+                if limit <= 0:
+                    self.io.show_warning("Showing last 20 logs (invalid number).")
+                    limit = 0
+            except ValueError:
+                self.io.show_warning("Invalid input. Show last 20 logs")
+                limit = 20
+
+        logs = self.audit.get_parsed_logs(limit)
         self.io.show_audit_table(logs)
 
     
