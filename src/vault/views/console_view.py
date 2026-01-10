@@ -66,3 +66,34 @@ class ConsoleView(IUserIO):
 
     def show_password_strength(self, formatted_score: str):
         rich_print(f"Password Strength: {formatted_score}")
+
+    def show_audit_table(self, logs: list[dict]):
+        if not logs:
+            self.show_warning("No audit history found.")
+            return
+
+        table = Table(title="Audit Log History")
+
+        table.add_column("Timestamp", style="cyan", no_wrap=True)
+        table.add_column("Action", style="bold magenta")
+        table.add_column("Details", style="white")
+
+        for log in logs:
+            action_style = "white"
+            if "FAIL" in log['action']:
+                action_style = "bold red"
+            elif "DELETE" in log['action']:
+                action_style = "red"
+            elif "ADD" in log['action'] or "IMPORT" in log['action']:
+                action_style = "green"
+            elif "SWITCH" in log['action']:
+                action_style = "yellow"
+
+            table.add_row(
+                log['timestamp'], 
+                f"[{action_style}]{log['action']}[/{action_style}]", 
+                log['details']
+            )
+
+        self.show_message(table)
+        print()

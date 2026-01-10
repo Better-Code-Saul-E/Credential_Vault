@@ -15,6 +15,7 @@ from .services.vault_service import VaultService
 from .services.configuration_service import ConfigurationService
 from .services.credential_input_service import CredentialInputService
 from .services.vault_transfer_service import VaultTransferService
+from .services.audit_service import AuditService
 
 from .controllers.vault_controller import VaultController
 from .controllers.authentication_controller import AuthenticationController
@@ -34,12 +35,13 @@ def setup_services(hash_file: str, config_file: str, data_dir: str, hasher: Pbkd
     hash_repo = FileMasterHashRepository(hash_file)
     auth_service = AuthenticationService(repo=hash_repo, hasher=hasher)
     config_service = ConfigurationService(config_file, data_dir) 
+    audit_servie = AuditService(data_dir)
     
-    return auth_service, config_service
+    return auth_service, config_service, audit_servie
 
-def bootstrap_controllers(auth_service: AuthenticationService, config_service: ConfigurationService, view: ConsoleView,
-                          encryptor: FernetDataEncryptor, clipboard: SystemClipboard, validator: PasswordStrength,
-                          user_password: str, vault_path: str) -> VaultController:
+def bootstrap_controllers(auth_service: AuthenticationService, config_service: ConfigurationService, audit_service: AuditService,
+                          view: ConsoleView, encryptor: FernetDataEncryptor, clipboard: SystemClipboard, 
+                          validator: PasswordStrength, user_password: str, vault_path: str) -> VaultController:
     """Construct repositories, servicies, and controllers with their dependencies."""
     
     repository = JsonRepository(vault_path, encryptor)
@@ -54,7 +56,8 @@ def bootstrap_controllers(auth_service: AuthenticationService, config_service: C
         config_service=config_service,
         auth_service=auth_service,
         transfer_service=transfer_service,
-        credential_input=credential_input_service
+        credential_input=credential_input_service,
+        audit_service=audit_service
     )
 
     return vault_controller
@@ -79,6 +82,7 @@ def create_parser() -> argparse.ArgumentParser:
         sp = subparsers.add_parser(cmd, help=help_text)
         sp.add_argument(arg_name, type=str, help=f"The {arg_name}.")
 
+    subparsers.add_parser('audit', help='View audit logs.')
     subparsers.add_parser('view', help='View all credentials.')
     subparsers.add_parser('passwd', help='Change the master password.')
     
@@ -110,6 +114,8 @@ def route_command(args, vault_controller: VaultController, parser: argparse.Argu
         vault_controller.export_vault(args.filepath) 
     elif args.command == 'import':
             vault_controller.import_vault(args.filepath)
+    elif args.command == 'audit':
+        vault_controller.show_audit_logs()
 
 
 
@@ -160,6 +166,8 @@ def run_interactive_shell(controller: VaultController, view: ConsoleView):
                 controller.export_vault(args[0])
             elif cmd == 'import' and len(args) >= 1:
                 controller.import_vault(args[0])
+            elif cmd == 'audit':
+                controller.show_audit_logs()
             elif cmd == 'switch':
                 view.show_warning("Switching vaults requires restarting the session. Please 'exit' and run 'switch' command.")
             else:
@@ -182,7 +190,7 @@ def run():
     ensure_data_directory(DATA_DIR)
 
     encryptor, hasher, clipboard, view, validator = setup_tools()
-    auth_service, config_service = setup_services(HASH_FILE, CONFIG_FILE, DATA_DIR, hasher)
+    auth_service, config_service, audit_service = setup_services(HASH_FILE, CONFIG_FILE, DATA_DIR, hasher)
 
     parser = create_parser()
 
@@ -203,7 +211,7 @@ def run():
         view.show_success(f"Switched active vault to: {new_path}")
         return 
 
-    auth_controller = AuthenticationController(auth_service, view, config_service)
+    auth_controller = AuthenticationController(auth_service, view, config_service, audit_service)
     user_password = auth_controller.authenticate_user()
     if not user_password:
         sys.exit(1)
@@ -221,7 +229,8 @@ def run():
         clipboard=clipboard,
         validator=validator,
         user_password=user_password,
-        vault_path=vault_path
+        vault_path=vault_path,
+        audit_service=audit_service
     )
     if interactive_mode:
         run_interactive_shell(vault_controller, view)
