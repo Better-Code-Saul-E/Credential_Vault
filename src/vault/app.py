@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 import shlex
+import time
 
 from .utils.encryptors import FernetDataEncryptor, Pbkdf2PasswordHasher
 from .utils.password_validator import PasswordStrength
@@ -136,9 +137,21 @@ def run_interactive_shell(controller: VaultController, view: ConsoleView):
     view.show_header(f"{vault_name} [Session Active]")
     view.show_info("Type 'help' for commands, 'exit' to quit.")
 
+    SESSION_TIMEOUT = 300
+    last_activity = time.time()
+
     while True:
         try:
             user_input = view.get_input(f"vault({vault_name}) > ").strip()
+            
+            current_time = time.time()
+            if (current_time - last_activity) > SESSION_TIMEOUT:
+                print("\n") 
+                view.show_warning("Session timed out due to inactivity.")
+                print("\n") 
+                break
+
+            last_activity = time.time()
 
             if not user_input:
                 continue
