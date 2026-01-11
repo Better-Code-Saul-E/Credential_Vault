@@ -1,6 +1,9 @@
+import os
+import glob
 from ..interfaces.vault_repository_interface import IVaultRepository
 from ..interfaces.vault_service_interface import IVaultService
 from thefuzz import fuzz
+
 
 class VaultService(IVaultService):
     """
@@ -74,8 +77,38 @@ class VaultService(IVaultService):
         return matches
 
     def change_master_password(self, new_password) -> None:
-        self.repo.rotate_encryption(self.credentials, new_password)
+        current_vault_path = self.repo.filepath
+        data_dir = os.path.dirname(current_vault_path)
+
+        all_files = glob.glob(os.path.join(data_dir, "*.json"))
+
+        success_count = 0
+        
+        for file_path in all_files:
+            filename = os.path.basename(file_path)
+
+            if filename == "config.json":
+                continue
+
+            try:
+                temp_repo = self.repo.__class__(
+                    filepath=file_path, 
+                    encryptor=self.repo.encryptor,
+                    migrator=getattr(self.repo, 'migrator', None) 
+                )
+
+                data = temp_repo.load_data(self.password)
+                temp_repo.save_data(data, new_password)
+                
+                print(f"Successfully re-encrypted vault: {filename}")
+                success_count += 1
+
+            except Exception as e:
+                print(f"Skipping {filename} (Sync failed): {e}")
+
         self.password = new_password
+        self._save_credentials()
+
         return True
     
     def import_credentials(self, new_data: dict) -> tuple[bool, int]:
