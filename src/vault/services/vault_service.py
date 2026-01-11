@@ -1,6 +1,6 @@
 from ..interfaces.vault_repository_interface import IVaultRepository
 from ..interfaces.vault_service_interface import IVaultService
-
+from thefuzz import fuzz
 
 class VaultService(IVaultService):
     """
@@ -62,8 +62,16 @@ class VaultService(IVaultService):
         return True
 
     def search_credentials(self, query):
-        query = query.lower()
-        return {k: v for k, v in self.credentials.items() if query in k}
+        all_creds = self.repo.load_data(self.password)
+        matches = {}
+        
+        for service_name, data in all_creds.items():
+            score = fuzz.partial_ratio(query.lower(), service_name.lower())
+
+            if score > 60:
+                matches[service_name] = data
+
+        return matches
 
     def change_master_password(self, new_password) -> None:
         self.repo.rotate_encryption(self.credentials, new_password)
