@@ -85,6 +85,11 @@ def create_parser() -> argparse.ArgumentParser:
     subparsers.add_parser('audit', help='View audit logs.')
     subparsers.add_parser('view', help='View all credentials.')
     subparsers.add_parser('passwd', help='Change the master password.')
+
+    gen_parser = subparsers.add_parser('generate', help='Generate a secure password.')
+    gen_parser.add_argument('-l', '--length', type=int, default=16, help='Length of password (default: 16).')
+    gen_parser.add_argument('--no-symbols', action='store_true', help='Exclude special characters.')
+    gen_parser.add_argument('--no-numbers', action='store_true', help='Exclude numbers.')
     
     parser.add_argument('-f', '--file', type=str, metavar='FILEPATH', help='Specify a custom vault file path.')
     return parser
@@ -116,6 +121,8 @@ def route_command(args, vault_controller: VaultController, parser: argparse.Argu
             vault_controller.import_vault(args.filepath)
     elif args.command == 'audit':
         vault_controller.show_audit_logs()
+    elif args.command == 'generate':
+        vault_controller.generate_password(args.length, args.no_symbols, args.no_numbers)
 
 
 
@@ -168,6 +175,25 @@ def run_interactive_shell(controller: VaultController, view: ConsoleView):
                 controller.import_vault(args[0])
             elif cmd == 'audit':
                 controller.show_audit_logs()
+            elif cmd == 'generate':
+                length = 16
+                no_symbols = False
+                no_numbers = False
+                
+                if '-l' in args:
+                    try:
+                        idx = args.index('-l')
+                        length = int(args[idx+1])
+                    except (ValueError, IndexError):
+                        view.show_warning("Invalid length. Using 16.")
+                
+                if '--no-symbols' in args:
+                    no_symbols = True
+                if '--no-numbers' in args:
+                    no_numbers = True
+
+                controller.generate_password(length, no_symbols, no_numbers)
+
             elif cmd == 'switch':
                 view.show_warning("Switching vaults requires restarting the session. Please 'exit' and run 'switch' command.")
             else:

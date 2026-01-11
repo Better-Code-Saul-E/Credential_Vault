@@ -7,6 +7,7 @@ from ..interfaces.user_io_interface import IUserIO, IClipboard
 from ..services.credential_input_service import CredentialInputService
 from ..services.vault_transfer_service import VaultTransferService
 from ..services.audit_service import AuditService
+from ..utils.password_generator import PasswordGenerator
 
 class VaultController:
     """
@@ -189,6 +190,24 @@ class VaultController:
 
         logs = self.audit.get_parsed_logs(limit)
         self.io.show_audit_table(logs)
+    
+    def generate_password(self, length: int, no_symbols: bool, no_numbers: bool):
+        self.io.show_header("Password Generator")
+
+        use_symbols = not no_symbols
+        use_numbers = not no_numbers
+
+        password = PasswordGenerator.generate(length, use_symbols, use_numbers)
+
+        print("\n")
+        self.io.show_message(f"Generated Password ({length} chars):")
+        self.io.show_success(f"  {password}  ") 
+        print("\n")
+
+        self.clipboard.copy_to_clipboard(password)
+        self.io.show_info("Password has been copied to clipboard!")
+
+        self.audit.log_event("GENERATE", f"Generated password (len={length})")    
 
     
     
