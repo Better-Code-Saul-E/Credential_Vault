@@ -30,5 +30,5 @@ class CredentialInputService:
                 self.io.show_error("Passwords did not match. Please try again.")
                 continue
 
-            break
+            return password
             
