@@ -57,6 +57,8 @@ Once inside the application, you can use the following commands to manage your c
 | `help` | Show this list of commands. |
 | `exit` | Lock the vault and close the application. |
 
+![Update/Get Example](./images/CredentialVault2.png)
+
 ---
 
 ## Features
@@ -71,6 +73,8 @@ Once inside the application, you can use the following commands to manage your c
   - Clipboard Integration for easy password pasting
   - Password Strength Analyzer evaluating complexity (length, special chars, etc.)
   - Import/Export via Unencrypted JSON backups (with warnings)
+
+![Update/Get Example](./images/CredentialVault1.png)
 
 ---
 
