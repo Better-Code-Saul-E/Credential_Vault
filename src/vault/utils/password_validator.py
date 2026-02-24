@@ -41,9 +41,6 @@ class PasswordStrength(IPasswordValidator):
                 score += 1
             else:
                 feedback.append(msg)
-        
-        if score > 4: 
-            score = 4
 
         return score, feedback
 

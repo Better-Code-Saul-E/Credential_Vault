@@ -27,7 +27,7 @@ class FernetDataEncryptor(IDataEncryptor):
         salt = os.urandom(16)
         key = self.derive_key(password, salt)
         f = Fernet(key)
-        # Standardize to utf-8
+
         encrypted_data = f.encrypt(data.encode('utf-8'))
         return salt + encrypted_data
 
