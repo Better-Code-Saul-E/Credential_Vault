@@ -67,6 +67,11 @@ class VaultController:
             self.clipboard.copy_to_clipboard(cred_dict['password'])
             self.audit.log_event("RETRIEVE", f"Copied password for: {service_name}")
             self.io.show_success(f"Password for {cred_dict['service_name']} copied to clipboard.")
+
+            self.io.get_input("Press [ENTER] when you are finished to clear the clipboard...")
+
+            self.clipboard.clear_clipboard()
+            self.io.show_info("Clipboard cleared.")
         else:
             self.audit.log_event("RETRIEVE_FAIL", f"Service not found: {service_name}")
             self.io.show_warning(f"Service {service_name} not found.")

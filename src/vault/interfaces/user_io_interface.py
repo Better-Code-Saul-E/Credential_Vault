@@ -9,6 +9,10 @@ class IClipboard(ABC):
     def copy_to_clipboard(self, text: str):
         pass
 
+    @abstractmethod
+    def clear_clipboard(self):
+        pass
+
 class IUserIO(ABC):
     """
     Defines user input/output operations for console interactions.
