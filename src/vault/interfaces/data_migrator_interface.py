@@ -1,4 +1,3 @@
-# interfaces/migration_interface.py
 from abc import ABC, abstractmethod
 
 class IDataMigrator(ABC):

@@ -2,10 +2,6 @@ import json
 import os
 
 
-# Refactor Notes:
-# - Add type hints for get_active_vault, set_active_vault
-
-
 class ConfigurationService:
     """
     Manages application configuration such as the active vault.
