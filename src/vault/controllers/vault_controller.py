@@ -188,7 +188,7 @@ class VaultController:
                 limit = int(user_input)
                 if limit <= 0:
                     self.io.show_warning("Showing last 20 logs (invalid number).")
-                    limit = 0
+                    limit = 20
             except ValueError:
                 self.io.show_warning("Invalid input. Show last 20 logs")
                 limit = 20
