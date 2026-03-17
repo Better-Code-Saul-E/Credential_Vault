@@ -67,10 +67,13 @@ class AuthenticationController:
             self.io.show_error("ACCESS DENIED")
             return None
     
+    def is_first_time_setup(self) -> bool:
+        return self.auth_service.repo.load_hash() is None
+    
     def authenticate_user(self) -> str | None:
         self.io.show_header(self._get_vault_name())
 
-        if  self.auth_service.repo.load_hash() is None:
+        if  self.is_first_time_setup():
             self.audit.log_event("SETUP", "First time setup initiated")
             return self._handle_first_time_setup()
         else:
