@@ -36,9 +36,9 @@ def setup_services(hash_file: str, config_file: str, data_dir: str, hasher: Pbkd
     hash_repo = FileMasterHashRepository(hash_file)
     auth_service = AuthenticationService(repo=hash_repo, hasher=hasher)
     config_service = ConfigurationService(config_file, data_dir) 
-    audit_servie = AuditService(data_dir)
+    audit_service = AuditService(data_dir)
     
-    return auth_service, config_service, audit_servie
+    return auth_service, config_service, audit_service
 
 def bootstrap_controllers(auth_service: AuthenticationService, config_service: ConfigurationService, audit_service: AuditService,
                           view: ConsoleView, encryptor: FernetDataEncryptor, clipboard: SystemClipboard, 
