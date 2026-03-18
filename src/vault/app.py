@@ -43,7 +43,7 @@ def setup_services(hash_file: str, config_file: str, data_dir: str, hasher: Pbkd
 def bootstrap_controllers(auth_service: AuthenticationService, config_service: ConfigurationService, audit_service: AuditService,
                           view: ConsoleView, encryptor: FernetDataEncryptor, clipboard: SystemClipboard, 
                           validator: PasswordStrength, user_password: str, vault_path: str) -> VaultController:
-    """Construct repositories, servicies, and controllers with their dependencies."""
+    """Construct repositories, services, and controllers with their dependencies."""
     
     repository = JsonRepository(vault_path, encryptor)
     vault_service = VaultService(repository, user_password)
