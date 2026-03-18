@@ -23,3 +23,6 @@ class AuthenticationService:
             return False
 
         return self.hasher.verify_password(password_attempt, stored_hash)
+
+    def is_first_time_setup(self) -> bool:
+        return self.repo.load_hash() is None
