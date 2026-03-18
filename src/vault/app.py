@@ -32,7 +32,7 @@ def setup_tools() -> tuple[FernetDataEncryptor, Pbkdf2PasswordHasher, SystemClip
     validator = PasswordStrength()  
     return encryptor, hasher, clipboard, view, validator
 
-def setup_services(hash_file: str, config_file: str, data_dir: str, hasher: Pbkdf2PasswordHasher) -> tuple[AuthenticationService, ConfigurationService]:
+def setup_services(hash_file: str, config_file: str, data_dir: str, hasher: Pbkdf2PasswordHasher) -> tuple[AuthenticationService, ConfigurationService, AuditService]:
     hash_repo = FileMasterHashRepository(hash_file)
     auth_service = AuthenticationService(repo=hash_repo, hasher=hasher)
     config_service = ConfigurationService(config_file, data_dir) 
