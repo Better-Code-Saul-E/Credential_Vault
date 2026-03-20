@@ -54,7 +54,7 @@ class VaultController:
             self.audit.log_event("ADD_FAIL", f"Failed to add {service_name} (Duplicate)")
             self.io.show_error(f"Service {service_name} already exists.")
 
-    def view_all_entrys(self):
+    def view_all_entries(self):
         self.audit.log_event("VIEW_ALL", "Viewed credential list")
         self.io.show_header(self.get_vault_name())
         data = self.service.list_all_credentials()

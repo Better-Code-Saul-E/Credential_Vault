@@ -103,7 +103,7 @@ def route_command(args, vault_controller: VaultController, parser: argparse.Argu
     if args.command == 'add':
         vault_controller.add_entry(args.service)
     elif args.command == 'view':
-        vault_controller.view_all_entrys()
+        vault_controller.view_all_entries()
     elif args.command == 'get':
         vault_controller.get_entry(args.service)
     elif args.command == 'delete':
@@ -169,7 +169,7 @@ def run_interactive_shell(controller: VaultController, view: ConsoleView):
             args = parts[1:]
 
             if cmd == 'view':
-                controller.view_all_entrys()
+                controller.view_all_entries()
             elif cmd == 'add' and len(args) >= 1:
                 controller.add_entry(args[0])
             elif cmd == 'get' and len(args) >= 1:
