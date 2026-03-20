@@ -28,7 +28,7 @@ class IUserIO(ABC):
         pass
     
     @abstractmethod
-    def show_header(self): 
+    def show_header(self, vault_name: str): 
         pass
 
     @abstractmethod
