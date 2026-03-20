@@ -119,7 +119,7 @@ def route_command(args, vault_controller: VaultController, parser: argparse.Argu
     elif args.command == 'export':
         vault_controller.export_vault(args.filepath) 
     elif args.command == 'import':
-            vault_controller.import_vault(args.filepath)
+        vault_controller.import_vault(args.filepath)
     elif args.command == 'audit':
         vault_controller.show_audit_logs()
     elif args.command == 'generate':
