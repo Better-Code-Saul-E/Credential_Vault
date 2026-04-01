@@ -240,6 +240,12 @@ def run():
         interactive_mode = False
         args = parser.parse_args()
 
+
+    auth_controller = AuthenticationController(auth_service, view, config_service, audit_service)
+    user_password = auth_controller.authenticate_user()
+    if not user_password:
+        sys.exit(1)
+
     if not interactive_mode and args.command == 'switch':
         new_path = config_service.set_active_vault(args.vault_name)
         
@@ -249,11 +255,6 @@ def run():
         view.show_header(clean_name)
         view.show_success(f"Switched active vault to: {new_path}")
         return 
-
-    auth_controller = AuthenticationController(auth_service, view, config_service, audit_service)
-    user_password = auth_controller.authenticate_user()
-    if not user_password:
-        sys.exit(1)
 
     if interactive_mode:
         vault_path = config_service.get_active_vault()
