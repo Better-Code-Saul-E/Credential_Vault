@@ -158,7 +158,7 @@ def run_interactive_shell(controller: VaultController, view: ConsoleView):
 
             if user_input.lower() in ('exit', 'quit'):
                 view.show_info("Closing session...")
-                break
+                return False
 
             if user_input.lower() == 'help':
                 view.show_info("Commands: view, add, get, delete, update, search, passwd, export, import, exit")
@@ -207,8 +207,9 @@ def run_interactive_shell(controller: VaultController, view: ConsoleView):
 
                 controller.generate_password(length, no_symbols, no_numbers)
 
-            elif cmd == 'switch':
-                view.show_warning("Switching vaults requires restarting the session. Please 'exit' and run 'switch' command.")
+            elif cmd == 'switch' and len(args) >= 1:
+                controller.switch_active_vault(args[0])
+                return True
             else:
                 view.show_error(f"Unknown command or missing arguments: {cmd}")
 
@@ -257,27 +258,45 @@ def run():
         return 
 
     if interactive_mode:
-        vault_path = config_service.get_active_vault()
+        while True:
+            vault_path = config_service.get_active_vault()
+            
+            vault_controller = bootstrap_controllers(
+                auth_service=auth_service,
+                config_service=config_service,
+                view=view,
+                encryptor=encryptor,
+                clipboard=clipboard,
+                validator=validator,
+                user_password=user_password,
+                vault_path=vault_path,
+                audit_service=audit_service
+            )
+
+            should_continue = run_interactive_shell(vault_controller, view)
+
+            if not should_continue:
+                break
+
     else:
         vault_path = args.file if args.file else config_service.get_active_vault()
 
-    vault_controller = bootstrap_controllers(
-        auth_service=auth_service,
-        config_service=config_service,
-        view=view,
-        encryptor=encryptor,
-        clipboard=clipboard,
-        validator=validator,
-        user_password=user_password,
-        vault_path=vault_path,
-        audit_service=audit_service
-    )
-    if interactive_mode:
-        run_interactive_shell(vault_controller, view)
-    else:
+        vault_controller = bootstrap_controllers(
+            auth_service=auth_service,
+            config_service=config_service,
+            view=view,
+            encryptor=encryptor,
+            clipboard=clipboard,
+            validator=validator,
+            user_password=user_password,
+            vault_path=vault_path,
+            audit_service=audit_service
+        )
+        
         if not args.command:
             parser.print_help()
             return
+        
         route_command(args, vault_controller, parser)
 
 if __name__ == "__main__":
