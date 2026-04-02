@@ -264,13 +264,13 @@ def run():
             vault_controller = bootstrap_controllers(
                 auth_service=auth_service,
                 config_service=config_service,
+                audit_service=audit_service,
                 view=view,
                 encryptor=encryptor,
                 clipboard=clipboard,
                 validator=validator,
                 user_password=user_password,
-                vault_path=vault_path,
-                audit_service=audit_service
+                vault_path=vault_path
             )
 
             should_continue = run_interactive_shell(vault_controller, view)
@@ -284,13 +284,13 @@ def run():
         vault_controller = bootstrap_controllers(
             auth_service=auth_service,
             config_service=config_service,
+            audit_service=audit_service,
             view=view,
             encryptor=encryptor,
             clipboard=clipboard,
             validator=validator,
             user_password=user_password,
-            vault_path=vault_path,
-            audit_service=audit_service
+            vault_path=vault_path
         )
         
         if not args.command:
