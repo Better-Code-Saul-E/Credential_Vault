@@ -5,6 +5,7 @@ from cryptography.fernet import InvalidToken
 from ..interfaces.vault_repository_interface import IVaultRepository
 from ..interfaces.data_migrator_interface import IDataMigrator
 from ..interfaces.encryption_interface import IDataEncryptor
+from ..models.credential import Credential
 
 class JsonRepository(IVaultRepository):
     """
@@ -42,7 +43,10 @@ class JsonRepository(IVaultRepository):
 
                 if self.migrator:
                     data = self.migrator.migrate(data)
-                    
+                
+                for key, value in data.items():
+                    data[key] = Credential(value["service_name"], value["username"], value["password"])
+
                 return data
 
         except (IOError, FileNotFoundError):

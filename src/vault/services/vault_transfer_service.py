@@ -7,9 +7,17 @@ class VaultTransferService:
 
     def export_to_file(self, filepath: str):
         data = self.vault.list_all_credentials()
+        export_data = {}
+
+        for key, cred in data.items():
+            export_data[key] = {
+                "service_name": cred.service_name,
+                "username": cred.username,
+                "password": cred.password
+            }
 
         with open(filepath, 'w') as f:
-            json.dump(data, f, indent=4)
+            json.dump(export_data, f, indent=4)
             
         return True
 

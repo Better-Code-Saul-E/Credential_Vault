@@ -2,6 +2,7 @@ import os
 import glob
 from ..interfaces.vault_repository_interface import IVaultRepository
 from ..interfaces.vault_service_interface import IVaultService
+from ..models.credential import Credential
 from thefuzz import fuzz
 
 
@@ -18,24 +19,29 @@ class VaultService(IVaultService):
         self.credentials = self.repo.load_data(self.password)
 
     def _save_credentials(self):
-        self.repo.save_data(self.credentials, self.password)
+        export_data = {}
+        for key, credential in self.credentials.items():
+            export_data[key] = {
+                "service_name": credential.service_name,
+                "username": credential.username,
+                "password": credential.password
+            }
 
-    def add_credential(self, service, username, password):
-        key = service.lower()
+        self.repo.save_data(export_data, self.password)
+
+    def add_credential(self, credential: Credential):
+        key = credential.service_name.lower()
         if key in self.credentials:
             return False
         
-        self.credentials[key] = {
-            "service_name": service,
-            "username": username,
-            "password": password
-        }
+        self.credentials[key] = credential
 
         self._save_credentials()
         return True
 
     def get_credential(self, service):
-        return self.credentials.get(service.lower())
+        credential = self.credentials.get(service.lower())
+        return credential
 
     def list_all_credentials(self):
         return self.credentials
@@ -49,30 +55,29 @@ class VaultService(IVaultService):
         
         return False
 
-    def update_credential(self, service, new_username=None, new_password=None):
-        key = service.lower()
+    def update_credential(self, credential: Credential):
+        key = credential.service_name.lower()
         if key not in self.credentials:
             return False
         
         cred = self.credentials[key]
 
-        if new_username:
-            cred['username'] = new_username
-        if new_password:
-            cred['password'] = new_password
+        if credential.username:
+            cred.username = credential.username
+        if credential.password:
+            cred.password = credential.password
 
         self._save_credentials()
         return True
 
     def search_credentials(self, query):
-        all_creds = self.repo.load_data(self.password)
         matches = {}
         
-        for service_name, data in all_creds.items():
-            score = fuzz.partial_ratio(query.lower(), service_name.lower())
+        for service, credential in self.credentials.items():
+            score = fuzz.partial_ratio(query.lower(), credential.service_name.lower())
 
             if score > 60:
-                matches[service_name] = data
+                matches[service] = credential
 
         return matches
 
@@ -98,7 +103,16 @@ class VaultService(IVaultService):
                 )
 
                 data = temp_repo.load_data(self.password)
-                temp_repo.save_data(data, new_password)
+
+                export_data = {}
+                for k, cred in data.items():
+                    export_data[k] = {
+                        "service_name": cred.service_name,
+                        "username": cred.username,
+                        "password": cred.password
+                    }
+                
+                temp_repo.save_data(export_data, new_password)
                 
                 print(f"Successfully re-encrypted vault: {filename}")
                 success_count += 1
@@ -116,7 +130,14 @@ class VaultService(IVaultService):
 
         for key, details in new_data.items():
             if isinstance(details, dict) and 'username' in details and 'password' in details:
-                self.credentials[key] = details
+                service_name = details.get('service_name', key) 
+                
+                self.credentials[key] = Credential(
+                    service_name=service_name,
+                    username=details['username'],
+                    password=details['password']
+                )
+
                 count+=1
 
         if count > 0:

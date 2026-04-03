@@ -274,7 +274,9 @@ def run():
             )
 
             should_continue = run_interactive_shell(vault_controller, view)
-
+            
+            user_password = vault_controller.service.password
+            
             if not should_continue:
                 break
 

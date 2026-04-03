@@ -45,9 +45,9 @@ class VaultController:
         username = self.io.get_input(f"Enter username for {service_name}: ")
         password = self.credential_input.get_valid_password()
 
-        cred = Credential(service_name, username, password)
+        credential = Credential(service_name, username, password)
         
-        if self.service.add_credential(cred.service_name, cred.username, cred.password):
+        if self.service.add_credential(credential):
             self.audit.log_event("ADD", f"Added credential: {service_name}")
             self.io.show_success(f"Credential for {service_name} added.")
         else:
@@ -62,11 +62,11 @@ class VaultController:
 
     def get_entry(self, service_name):
         self.io.show_header(self.get_vault_name())
-        cred_dict = self.service.get_credential(service_name)
-        if cred_dict:
-            self.clipboard.copy_to_clipboard(cred_dict['password'])
-            self.audit.log_event("RETRIEVE", f"Copied password for: {service_name}")
-            self.io.show_success(f"Password for {cred_dict['service_name']} copied to clipboard.")
+        credential = self.service.get_credential(service_name)
+        if credential:
+            self.clipboard.copy_to_clipboard(credential.password)
+            self.audit.log_event("RETRIEVE", f"Copied password for: {credential.service_name}")
+            self.io.show_success(f"Password for {credential.service_name} copied to clipboard.")
 
             self.io.get_input("Press [ENTER] when you are finished to clear the clipboard...")
 
@@ -99,7 +99,9 @@ class VaultController:
         final_user = new_user if new_user else None
         final_pass = new_pass if new_pass else None
 
-        if self.service.update_credential(service_name, final_user, final_pass):
+        credential = Credential(service_name, final_user, final_pass)
+
+        if self.service.update_credential(credential):
             self.audit.log_event("UPDATE", f"UPDATE credential: {service_name}")
             self.io.show_success(f"Updated {service_name}.")
         else:

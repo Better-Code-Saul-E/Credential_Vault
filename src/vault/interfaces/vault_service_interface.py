@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Dict
+from ..models.credential import Credential
 
 
 # Refactor Notes:
@@ -13,7 +14,7 @@ class IVaultService(ABC):
     """
     
     @abstractmethod
-    def add_credential(self, service_name: str, username: str, password: str) -> bool:
+    def add_credential(self, credential: Credential) -> bool:
         pass
 
     @abstractmethod

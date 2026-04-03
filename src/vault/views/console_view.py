@@ -45,7 +45,7 @@ class ConsoleView(IUserIO):
         
         for key in sorted(credentials.keys()):
             item = credentials[key]
-            table.add_row(item['service_name'], item['username'])
+            table.add_row(item.service_name, item.username)
         
         rich_print(table)
 
@@ -60,7 +60,7 @@ class ConsoleView(IUserIO):
         
         for key in sorted(matches.keys()):
             item = matches[key]
-            table.add_row(item['service_name'], item['username'])
+            table.add_row(item.service_name, item.username)
             
         rich_print(table)
 
