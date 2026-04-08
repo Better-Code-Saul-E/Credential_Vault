@@ -8,32 +8,40 @@ def test_generate_default_password():
     assert len(password) == 16
     assert isinstance(password, str)
 
-@pytest.mark.parametrize("length, expected_length", [
-    (50, 50),
-    (2, 2),
-    (0, 0),
-    (-10, 0)
+@pytest.mark.parametrize("length", [
+    3,
+    16,
+    50
 ])
-def test_generate_length(length, expected_length):
+def test_generate_length(length):
     password = PasswordGenerator.generate(length=length)
 
-    assert len(password) == expected_length
+    assert len(password) == length
     assert isinstance(password, str)
 
-def test_generate_password_wihout_symbols():
-    password = PasswordGenerator.generate(length=100 , use_symbols=False)
+@pytest.mark.parametrize("length", [
+    2, 
+    0, 
+    -10
+])
+def test_generate_raises_error_on_impossible_constraints(length):
+        with pytest.raises(ValueError, match="too short"):
+            PasswordGenerator.generate(length=length)
+
+@pytest.mark.parametrize("use_symbols, use_numbers", [
+    (True, True),  
+    (True, False),  
+    (False, True),  
+    (False, False)  
+])
+def test_generate_character_constraints(use_symbols, use_numbers):
+    password = PasswordGenerator.generate(length=20, use_symbols=use_symbols, use_numbers=use_numbers)
     
-    assert not any(char in string.punctuation for char in password)
-
-def test_generate_password_without_numbers():
-    password = PasswordGenerator.generate(length=100 , use_numbers=False)
-
-    assert not any(char.isdigit() for char in password)
-
-def test_generate_password_without_symbols_or_numbers():
-    password = PasswordGenerator.generate(use_symbols=False, use_numbers=False)
-
-    assert password.isalpha()
+    has_symbols = any(char in string.punctuation for char in password)
+    has_numbers = any(char.isdigit() for char in password)
+    
+    assert has_symbols == use_symbols
+    assert has_numbers == use_numbers
 
 def test_password_generation_uniqueness():
     passwordOne = PasswordGenerator.generate()
