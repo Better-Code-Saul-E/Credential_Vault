@@ -121,7 +121,6 @@ class VaultService(IVaultService):
                 print(f"Skipping {filename} (Sync failed): {e}")
 
         self.password = new_password
-        self._save_credentials()
 
         return True
     
