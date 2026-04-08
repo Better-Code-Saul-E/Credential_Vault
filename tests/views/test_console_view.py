@@ -2,6 +2,7 @@ import builtins
 import getpass
 import pytest
 from src.vault.views.console_view import ConsoleView
+from src.vault.models.credential import Credential
 
 
 @pytest.fixture
@@ -41,12 +42,9 @@ def test_empty_vault_output(console_view, capsys):
     assert "Vault is empty." in captured.out
 
 def test_filled_vault_output(console_view, capsys):
+    apple = Credential("apple", "steve homeless", "appleBest")
     console_view.show_credential_list({
-    "apple": {
-        "service_name": "apple",
-        "username": "steve homeless",
-        "password": "appleBest"
-    }})
+    "apple": apple})
     captured = capsys.readouterr()
 
     assert "apple" in captured.out
@@ -59,12 +57,10 @@ def test_empty_credential_search(console_view, capsys):
     assert "No credentials found containing 'apple'." in captured.out
 
 def test_successful_credential_search(console_view, capsys):
+    apple = Credential("apple", "steve homeless", "appleBest")
     console_view.show_search_results({
-    "apple": {
-        "service_name": "apple",
-        "username": "steve homeless",
-        "password": "appleBest"
-    }}, "apple")
+    "apple": apple}, "apple")
+    
     captured = capsys.readouterr()
 
     assert "apple" in captured.out
