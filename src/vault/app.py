@@ -86,6 +86,7 @@ def create_parser() -> argparse.ArgumentParser:
     subparsers.add_parser('audit', help='View audit logs.')
     subparsers.add_parser('view', help='View all credentials.')
     subparsers.add_parser('passwd', help='Change the master password.')
+    subparsers.add_parser('help', help='Show this help message.')
 
     gen_parser = subparsers.add_parser('generate', help='Generate a secure password.')
     gen_parser.add_argument('-l', '--length', type=int, default=16, help='Length of password (default: 16).')
@@ -96,7 +97,7 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 def route_command(args, vault_controller: VaultController, parser: argparse.ArgumentParser):
-    if not args.command:
+    if not args.command or args.command == 'help':
         parser.print_help()
         return
     
@@ -132,7 +133,7 @@ def route_command(args, vault_controller: VaultController, parser: argparse.Argu
 # -------------------------------
 # Interactive Shell
 # -------------------------------
-def run_interactive_shell(controller: VaultController, view: ConsoleView):
+def run_interactive_shell(controller: VaultController, view: ConsoleView, parser: argparse.ArgumentParser):
     vault_name = controller.get_vault_name()
     view.show_header(f"{vault_name} [Session Active]")
     view.show_info("Type 'help' for commands, 'exit' to quit.")
@@ -160,58 +161,18 @@ def run_interactive_shell(controller: VaultController, view: ConsoleView):
                 view.show_info("Closing session...")
                 return False
 
-            if user_input.lower() == 'help':
-                view.show_info("Commands: view, add, get, delete, update, search, passwd, export, import, exit")
+            parts = shlex.split(user_input)
+
+            try:
+                args = parser.parse_args(parts)
+            except SystemExit:
                 continue
 
-            parts = shlex.split(user_input)
-            cmd = parts[0].lower()
-            args = parts[1:]
-
-            if cmd == 'view':
-                controller.view_all_entries()
-            elif cmd == 'add' and len(args) >= 1:
-                controller.add_entry(args[0])
-            elif cmd == 'get' and len(args) >= 1:
-                controller.get_entry(args[0])
-            elif cmd == 'delete' and len(args) >= 1:
-                controller.delete_entry(args[0])
-            elif cmd == 'update' and len(args) >= 1:
-                controller.update_entry(args[0])
-            elif cmd == 'search' and len(args) >= 1:
-                controller.find_entry(args[0])
-            elif cmd == 'passwd':
-                controller.change_password()
-            elif cmd == 'export' and len(args) >= 1:
-                controller.export_vault(args[0])
-            elif cmd == 'import' and len(args) >= 1:
-                controller.import_vault(args[0])
-            elif cmd == 'audit':
-                controller.show_audit_logs()
-            elif cmd == 'generate':
-                length = 16
-                no_symbols = False
-                no_numbers = False
-                
-                if '-l' in args:
-                    try:
-                        idx = args.index('-l')
-                        length = int(args[idx+1])
-                    except (ValueError, IndexError):
-                        view.show_warning("Invalid length. Using 16.")
-                
-                if '--no-symbols' in args:
-                    no_symbols = True
-                if '--no-numbers' in args:
-                    no_numbers = True
-
-                controller.generate_password(length, no_symbols, no_numbers)
-
-            elif cmd == 'switch' and len(args) >= 1:
-                controller.switch_active_vault(args[0])
+            if args.command == 'switch':
+                controller.switch_active_vault(args.vault_name)
                 return True
             else:
-                view.show_error(f"Unknown command or missing arguments: {cmd}")
+                route_command(args, controller, parser)
 
         except KeyboardInterrupt:
             view.show_error("Type 'exit' to quit.")
@@ -273,7 +234,7 @@ def run():
                 vault_path=vault_path
             )
 
-            should_continue = run_interactive_shell(vault_controller, view)
+            should_continue = run_interactive_shell(vault_controller, view, parser)
             
             user_password = vault_controller.service.password
             
@@ -294,10 +255,6 @@ def run():
             user_password=user_password,
             vault_path=vault_path
         )
-        
-        if not args.command:
-            parser.print_help()
-            return
         
         route_command(args, vault_controller, parser)
 
