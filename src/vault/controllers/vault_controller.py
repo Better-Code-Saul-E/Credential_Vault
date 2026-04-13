@@ -125,6 +125,12 @@ class VaultController:
     def change_password(self):
         self.io.show_header(self.get_vault_name())
 
+        current_pass = self.io.get_password("Enter CURRENT master password: ")
+
+        if not self.auth.verify_password(current_pass):
+            self.io.show_error("Incorrect current master password. Access denied.")
+            return
+        
         new_pass = self.io.get_password("Enter NEW master password: ")
         confirm = self.io.get_password("Confirm NEW master password: ")
 
