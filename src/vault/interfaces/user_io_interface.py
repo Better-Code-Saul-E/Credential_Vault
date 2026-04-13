@@ -30,6 +30,10 @@ class IUserIO(ABC):
     @abstractmethod
     def show_header(self, vault_name: str): 
         pass
+    
+    @abstractmethod
+    def line_break(self): 
+        pass
 
     @abstractmethod
     def show_message(self, msg: str): 

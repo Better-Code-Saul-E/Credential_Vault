@@ -19,6 +19,9 @@ class ConsoleView(IUserIO):
         title = f"[bold cyan] Credential Vault : {vault_name} [/bold cyan]"
         rich_print(Panel.fit("=+~+="*2 + title + "=+~+="*2, border_style="blue"))
 
+    def line_break(self):
+        rich_print("\n")
+
     def show_message(self, message: str):
         rich_print(message)
 

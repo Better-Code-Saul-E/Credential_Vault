@@ -147,9 +147,9 @@ def run_interactive_shell(controller: VaultController, view: ConsoleView, parser
             
             current_time = time.time()
             if (current_time - last_activity) > SESSION_TIMEOUT:
-                print("\n") 
+                view.line_break()
                 view.show_warning("Session timed out due to inactivity.")
-                print("\n") 
+                view.line_break()
                 break
 
             last_activity = time.time()
