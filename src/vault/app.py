@@ -183,7 +183,11 @@ def run_interactive_shell(controller: VaultController, view: ConsoleView, parser
 # Main Run Function
 # -------------------------------
 def run():
-    BASE_DIR = os.getcwd()
+    if getattr(sys, 'frozen', False):
+        BASE_DIR = os.path.dirname(sys.executable)
+    else:
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        
     DATA_DIR = os.path.join(BASE_DIR, 'data')
     HASH_FILE = os.path.join(DATA_DIR, 'master.hash')
     CONFIG_FILE = os.path.join(DATA_DIR, 'config.json')
