@@ -31,4 +31,28 @@ class CredentialInputService:
                 continue
 
             return password
+    
+    def get_optional_password(self) -> str | None:
+        while True:
+            password = self.io.get_password("New password: ")
+
+            if not password: 
+                return None
+
+            score, feedback = self.validator.validate_password(password)
+            formatted = self.validator.format_password_strength(score, feedback)
+            self.io.show_password_strength(formatted)
+
+            if score < 4:
+                confirm = self.io.get_input("Keep weak password? (y/n): ")
+
+                if confirm.lower() != 'y':
+                    continue
+            
+            confirm_password = self.io.get_password("Confirm password: ")
+            if password != confirm_password:
+                self.io.show_error("Passwords did not match. Please try again.")
+                continue
+
+            return password
             

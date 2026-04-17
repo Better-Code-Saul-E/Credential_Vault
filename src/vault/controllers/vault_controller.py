@@ -94,10 +94,9 @@ class VaultController:
         self.io.show_info(f"Updating {service_name}. Press Enter to keep current values.")
         
         new_user = self.io.get_input("New username: ")
-        new_pass = self.io.get_password("New password: ")
-
         final_user = new_user if new_user else None
-        final_pass = new_pass if new_pass else None
+
+        final_pass = self.credential_input.get_optional_password()
 
         credential = Credential(service_name, final_user, final_pass)
 
