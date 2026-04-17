@@ -11,21 +11,28 @@ class ConfigurationService:
     def __init__(self, config_path: str, data_dir: str):
         self.config_path = config_path
         self.data_dir = data_dir
+        self._config_cache = None
         
         self.defaults = {
             "active_vault": os.path.join(data_dir, "credentials.json")
         }
 
     def _load_config(self):
+        if self._config_cache is not None:
+            return self._config_cache
+
         if not os.path.exists(self.config_path):
-            return self.defaults
+            self._config_cache = self.defaults
+            return self._config_cache
 
         try:
             with open(self.config_path, 'r') as f:
-                return json.load(f)
+                self._config_cache = json.load(f)
+                return self._config_cache
             
         except (IOError, json.JSONDecodeError):
-            return self.defaults
+            self._config_cache = self.defaults
+            return self._config_cache
 
     def _save_config(self, config):
         try:
@@ -34,6 +41,7 @@ class ConfigurationService:
             with open(self.config_path, 'w') as f:
                 json.dump(config, f, indent=4)
 
+            self._config_cache = config
             return True
         
         except IOError:
