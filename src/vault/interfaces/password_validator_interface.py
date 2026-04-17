@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Tuple, List
+from ..models.password_strength_result import PasswordStrengthResult
 
 class IPasswordValidator(ABC):
     """
@@ -7,9 +8,6 @@ class IPasswordValidator(ABC):
     """
 
     @abstractmethod
-    def validate_password(self, password: str) -> Tuple[int, List[str]]: 
+    def validate_password(self, password: str) -> Tuple[PasswordStrengthResult, List[str]]: 
         pass
     
-    @abstractmethod
-    def format_password_strength(self, score: int, feedback: List[str]) -> str: 
-        pass

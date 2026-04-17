@@ -1,4 +1,5 @@
 import re
+from ..models.password_strength_result import PasswordStrengthResult
 from ..interfaces.password_validator_interface import IPasswordValidator
 
 class PasswordStrength(IPasswordValidator):
@@ -20,7 +21,7 @@ class PasswordStrength(IPasswordValidator):
         return (bool(re.search(r"[ !#$%&'()*+,-./:;<=>?@[\]^_`{|}~]", password)), "Add special chars (@, #, $, etc.)")
 
 
-    def validate_password(self, password: str) -> tuple[int, list[str]]:
+    def validate_password(self, password: str) -> tuple[PasswordStrengthResult, list[str]]:
         score = 0
         feedback = []
 
@@ -37,12 +38,11 @@ class PasswordStrength(IPasswordValidator):
             else:
                 feedback.append(msg)
 
-        return score, feedback
-
-    def format_password_strength(self, score: int, feedback: list[str]) -> str:
         if score >= 4:
-            return "[bold green]STRONG[/bold green]"
+            result = PasswordStrengthResult.STRONG
         elif score >= 2:
-            return "[bold yellow]MEDIUM[/bold yellow]"
+            result = PasswordStrengthResult.MEDIUM
         else:
-            return f"[bold red]WEAK[/bold red] ({', '.join(feedback)})"
+            result = PasswordStrengthResult.WEAK
+
+        return result, feedback

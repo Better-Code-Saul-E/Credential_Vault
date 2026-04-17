@@ -3,6 +3,7 @@ from rich import print as rich_print
 from rich.table import Table
 from rich.panel import Panel
 from ..interfaces.user_io_interface import IUserIO
+from ..models.password_strength_result import PasswordStrengthResult
 
 
 class ConsoleView(IUserIO):
@@ -67,7 +68,14 @@ class ConsoleView(IUserIO):
             
         rich_print(table)
 
-    def show_password_strength(self, formatted_score: str):
+    def show_password_strength(self, strength: PasswordStrengthResult, feedback: list[str]):
+        if strength == PasswordStrengthResult.STRONG:
+            formatted_score = "[bold green]STRONG[/bold green]"
+        elif strength == PasswordStrengthResult.MEDIUM:
+            formatted_score = f"[bold yellow]MEDIUM[/bold yellow] ({', '.join(feedback)})"
+        else:
+            formatted_score = f"[bold red]WEAK[/bold red] ({', '.join(feedback)})"
+            
         rich_print(f"Password Strength: {formatted_score}")
 
     def show_audit_table(self, logs: list[dict]):

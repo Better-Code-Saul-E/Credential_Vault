@@ -1,5 +1,6 @@
 from ..interfaces.user_io_interface import IUserIO
 from ..interfaces.password_validator_interface import IPasswordValidator
+from ..models.password_strength_result import PasswordStrengthResult
 
 class CredentialInputService:
     """
@@ -15,11 +16,10 @@ class CredentialInputService:
     def get_valid_password(self) -> str:
         while True:
             password = self.io.get_password("Enter password: ")
-            score, feedback = self.validator.validate_password(password)
-            formatted = self.validator.format_password_strength(score, feedback)
-            self.io.show_password_strength(formatted)
+            strength, feedback = self.validator.validate_password(password)
+            self.io.show_password_strength(strength, feedback)
 
-            if score < 4:
+            if strength != PasswordStrengthResult.STRONG:
                 confirm = self.io.get_input("Keep weak password? (y/n): ")
 
                 if confirm.lower() != 'y':
@@ -39,11 +39,10 @@ class CredentialInputService:
             if not password: 
                 return None
 
-            score, feedback = self.validator.validate_password(password)
-            formatted = self.validator.format_password_strength(score, feedback)
-            self.io.show_password_strength(formatted)
+            strength, feedback = self.validator.validate_password(password)
+            self.io.show_password_strength(strength, feedback)
 
-            if score < 4:
+            if strength != PasswordStrengthResult.STRONG:
                 confirm = self.io.get_input("Keep weak password? (y/n): ")
 
                 if confirm.lower() != 'y':
