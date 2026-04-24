@@ -96,7 +96,13 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument('-f', '--file', type=str, metavar='FILEPATH', help='Specify a custom vault file path.')
     return parser
 
-def route_command(args, vault_controller: VaultController, parser: argparse.ArgumentParser):
+def resolve_export_path(filename: str, downloads_dir: str):
+    if os.path.isabs(filename):
+        return filename
+    
+    return os.path.join(downloads_dir, filename)
+
+def route_command(args, vault_controller: VaultController, parser: argparse.ArgumentParser, downloads_dir: str):
     if not args.command or args.command == 'help':
         parser.print_help()
         return
@@ -118,7 +124,8 @@ def route_command(args, vault_controller: VaultController, parser: argparse.Argu
     elif args.command == 'passwd':
         vault_controller.change_password()
     elif args.command == 'export':
-        vault_controller.export_vault(args.filepath) 
+        path = resolve_export_path(args.filepath, downloads_dir)
+        vault_controller.export_vault(path) 
     elif args.command == 'import':
         vault_controller.import_vault(args.filepath)
     elif args.command == 'audit':
@@ -133,7 +140,7 @@ def route_command(args, vault_controller: VaultController, parser: argparse.Argu
 # -------------------------------
 # Interactive Shell
 # -------------------------------
-def run_interactive_shell(controller: VaultController, view: ConsoleView, parser: argparse.ArgumentParser):
+def run_interactive_shell(controller: VaultController, view: ConsoleView, parser: argparse.ArgumentParser, downloads_dir: str):
     vault_name = controller.get_vault_name()
     view.show_header(f"{vault_name} [Session Active]")
     view.show_info("Type 'help' for commands, 'exit' to quit.")
@@ -172,7 +179,7 @@ def run_interactive_shell(controller: VaultController, view: ConsoleView, parser
                 controller.switch_active_vault(args.vault_name)
                 return True
             else:
-                route_command(args, controller, parser)
+                route_command(args, controller, parser, downloads_dir)
 
         except KeyboardInterrupt:
             view.show_error("Type 'exit' to quit.")
@@ -183,12 +190,9 @@ def run_interactive_shell(controller: VaultController, view: ConsoleView, parser
 # Main Run Function
 # -------------------------------
 def run():
-    if getattr(sys, 'frozen', False):
-        BASE_DIR = os.path.dirname(sys.executable)
-    else:
-        BASE_DIR = os.path.dirname(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-        
-    DATA_DIR = os.path.join(BASE_DIR, 'data')
+    HOME_DIR = os.path.expanduser("~")
+    DATA_DIR = os.path.join(HOME_DIR, '.credential_vault')
+    DOWNLOADS_DIR = os.path.join(HOME_DIR, "Downloads")
     HASH_FILE = os.path.join(DATA_DIR, 'master.hash')
     CONFIG_FILE = os.path.join(DATA_DIR, 'config.json')
 
@@ -238,7 +242,7 @@ def run():
                 vault_path=vault_path
             )
 
-            should_continue = run_interactive_shell(vault_controller, view, parser)
+            should_continue = run_interactive_shell(vault_controller, view, parser, DOWNLOADS_DIR)
             
             user_password = vault_controller.service.password
             
@@ -260,7 +264,7 @@ def run():
             vault_path=vault_path
         )
         
-        route_command(args, vault_controller, parser)
+        route_command(args, vault_controller, parser, DOWNLOADS_DIR)
 
 if __name__ == "__main__":
     run()
