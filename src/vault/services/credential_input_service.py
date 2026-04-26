@@ -16,7 +16,7 @@ class CredentialInputService:
     def get_valid_password(self) -> str:
         while True:
             password = self.io.get_password("Enter password: ")
-            strength, feedback = self.validator.validate_password(password)
+            strength, feedback = self.validator.validate_password_requirements(password)
             self.io.show_password_strength(strength, feedback)
 
             if strength != PasswordStrengthResult.STRONG:
@@ -39,7 +39,7 @@ class CredentialInputService:
             if not password: 
                 return None
 
-            strength, feedback = self.validator.validate_password(password)
+            strength, feedback = self.validator.validate_password_requirements(password)
             self.io.show_password_strength(strength, feedback)
 
             if strength != PasswordStrengthResult.STRONG:

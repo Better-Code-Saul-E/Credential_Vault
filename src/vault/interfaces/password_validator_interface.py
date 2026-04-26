@@ -8,6 +8,6 @@ class IPasswordValidator(ABC):
     """
 
     @abstractmethod
-    def validate_password(self, password: str) -> Tuple[PasswordStrengthResult, List[str]]: 
+    def validate_password_requirements(self, password: str) -> Tuple[PasswordStrengthResult, List[str]]: 
         pass
     

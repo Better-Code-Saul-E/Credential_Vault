@@ -9,10 +9,10 @@ from src.vault.utils.password_validator import PasswordStrength
     ("t0ast1", 1, ["Too short (min 8 chars)", "Mix uppercase & lowercase", "Add special chars (@, #, $, etc.)"]),
     ("$uperr1ch", 3, ["Mix uppercase & lowercase"])
 ])
-def test_validate_password_requirments(password, expected_score, expected_feedback):
+def test_validate_password_requirements_requirments(password, expected_score, expected_feedback):
     validator = PasswordStrength()
 
-    score, feedback = validator.validate_password(password)
+    score, feedback = validator.validate_password_requirements(password)
 
     assert feedback == expected_feedback
     assert score == expected_score

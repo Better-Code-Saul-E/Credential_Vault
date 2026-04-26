@@ -21,7 +21,7 @@ class PasswordStrength(IPasswordValidator):
         return (bool(re.search(r"[ !#$%&'()*+,-./:;<=>?@[\]^_`{|}~]", password)), "Add special chars (@, #, $, etc.)")
 
 
-    def validate_password(self, password: str) -> tuple[PasswordStrengthResult, list[str]]:
+    def validate_password_requirements(self, password: str) -> tuple[PasswordStrengthResult, list[str]]:
         score = 0
         feedback = []
 
