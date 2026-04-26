@@ -2,11 +2,6 @@ from abc import ABC, abstractmethod
 from typing import Optional, Dict
 from ..models.credential import Credential
 
-
-# Refactor Notes:
-# - Use Credential as the dataclass for type safety (Dict[str, Credential]) in list_all_credentials, get_credential, search_credentials
-
-
 class IVaultService(ABC):
     """
     Defines the contract for VaultService implementations.
@@ -18,15 +13,15 @@ class IVaultService(ABC):
         pass
 
     @abstractmethod
-    def list_all_credentials(self) -> Dict[str, dict]:
+    def list_all_credentials(self) -> Dict[str, Credential]:
         pass
 
     @abstractmethod
-    def get_credential(self, service_name: str) -> Optional[dict]:
+    def get_credential(self, service_name: str) -> Optional[Credential]:
         pass
 
     @abstractmethod
-    def update_credential(self, service_name: str, username: str = None, password: str = None) -> bool:
+    def update_credential(self, credential: Credential) -> bool:
         pass
 
     @abstractmethod
@@ -34,7 +29,7 @@ class IVaultService(ABC):
         pass
 
     @abstractmethod
-    def search_credentials(self, query: str) -> Dict[str, dict]:
+    def search_credentials(self, query: str) -> Dict[str, Credential]:
         pass
 
     @abstractmethod
