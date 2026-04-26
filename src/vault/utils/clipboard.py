@@ -7,5 +7,5 @@ class SystemClipboard(IClipboard):
         pyperclip.copy(text)
 
     def clear_clipboard(self):
-        return pyperclip.copy(" ")
+        return pyperclip.copy("")
 
