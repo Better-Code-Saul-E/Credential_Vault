@@ -38,9 +38,9 @@ class PasswordStrength(IPasswordValidator):
             else:
                 feedback.append(msg)
 
-        if score >= 4:
+        if score >= PasswordStrengthResult.STRONG.value:
             result = PasswordStrengthResult.STRONG
-        elif score >= 2:
+        elif score >= PasswordStrengthResult.MEDIUM.value:
             result = PasswordStrengthResult.MEDIUM
         else:
             result = PasswordStrengthResult.WEAK
