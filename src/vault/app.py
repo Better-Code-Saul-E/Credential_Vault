@@ -216,16 +216,6 @@ def run():
     if not user_password:
         sys.exit(1)
 
-    if not interactive_mode and args.command == 'switch':
-        new_path = config_service.set_active_vault(args.vault_name)
-        
-        vault_name = os.path.basename(new_path)
-        clean_name = os.path.splitext(vault_name)[0].capitalize()
-        
-        view.show_header(clean_name)
-        view.show_success(f"Switched active vault to: {new_path}")
-        return 
-
     if interactive_mode:
         while True:
             vault_path = config_service.get_active_vault()
