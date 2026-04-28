@@ -1,5 +1,4 @@
 import pyperclip
-import threading
 from ..interfaces.user_io_interface import IClipboard
 
 class SystemClipboard(IClipboard):
