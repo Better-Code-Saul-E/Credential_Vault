@@ -211,10 +211,10 @@ class VaultController:
 
         password = PasswordGenerator.generate(length, use_symbols, use_numbers)
 
-        print("\n")
+        self.io.line_break()
         self.io.show_message(f"Generated Password ({length} chars):")
         self.io.show_success(f"  {password}  ") 
-        print("\n")
+        self.io.line_break()
 
         self.clipboard.copy_to_clipboard(password)
         self.io.show_info("Password has been copied to clipboard!")
