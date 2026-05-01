@@ -33,7 +33,7 @@ class IVaultService(ABC):
         pass
 
     @abstractmethod
-    def change_master_password(self, new_password: str) -> bool:
+    def change_master_password(self, new_password: str) -> tuple[int, list[str]]:
         pass
 
     @abstractmethod

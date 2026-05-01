@@ -81,13 +81,14 @@ class VaultService(IVaultService):
 
         return matches
 
-    def change_master_password(self, new_password) -> None:
+    def change_master_password(self, new_password) -> tuple[int, list[str]]:
         current_vault_path = self.repo.filepath
         data_dir = os.path.dirname(current_vault_path)
 
         all_files = glob.glob(os.path.join(data_dir, "*.json"))
 
         success_count = 0
+        errors = []
         
         for file_path in all_files:
             filename = os.path.basename(file_path)
@@ -114,15 +115,14 @@ class VaultService(IVaultService):
                 
                 temp_repo.save_data(export_data, new_password)
                 
-                print(f"Successfully re-encrypted vault: {filename}")
                 success_count += 1
 
             except Exception as e:
-                print(f"Skipping {filename} (Sync failed): {e}")
+                errors.append(f"{filename} (Sync failed): {e}")
 
         self.password = new_password
 
-        return True
+        return success_count, errors
     
     def import_credentials(self, new_data: dict) -> tuple[bool, int]:
         count = 0

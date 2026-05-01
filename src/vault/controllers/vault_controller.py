@@ -137,11 +137,15 @@ class VaultController:
             self.io.show_error("Passwords do not match.")
             return
 
-        self.service.change_master_password(new_pass)
+        success_count, errors = self.service.change_master_password(new_pass)
         self.auth.create_master_hash(new_pass)
+
+        if errors:
+            for error in errors:
+                self.io.show_warning(f"Skipping {error}")
         
-        self.audit.log_event("MASTER_CHANGE", "Master password changed successfully")
-        self.io.show_success("Master password changed successfully.")
+        self.audit.log_event("MASTER_CHANGE", f"Master password changed ({success_count} vaults updated)")
+        self.io.show_success(f"Master password changed successfully. {success_count} vaults updated.")
 
     def export_vault(self, filepath):
         self.io.show_header(self.get_vault_name())
